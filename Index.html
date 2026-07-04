@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipo de Servicio · Acomodadores y AV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#10141c;
+    --bg-soft:#161b26;
+    --card:#1b2130;
+    --card-hover:#212841;
+    --line:#2a3244;
+    --amber:#e8a33d;
+    --amber-dim:#4a3a22;
+    --teal:#42c9bb;
+    --teal-dim:#1e3a37;
+    --text:#edeff4;
+    --text-mid:#aab1c2;
+    --text-dim:#6c7488;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(232,163,61,0.08), transparent),
+      radial-gradient(ellipse 900px 600px at 90% 10%, rgba(66,201,187,0.07), transparent),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:36px 20px 80px;}
+
+  /* ---- Header ---- */
+  header{margin-bottom:34px;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--teal);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;height:1px;background:var(--teal);
+    display:inline-block;
+  }
+  h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-weight:400;
+    font-size:clamp(38px,7vw,58px);
+    letter-spacing:0.02em;
+    line-height:0.95;
+    margin:0 0 8px;
+    color:var(--text);
+  }
+  h1 span{color:var(--amber);}
+  .sub{color:var(--text-mid);font-size:15px;max-width:560px;line-height:1.5;}
+
+  /* ---- Tabs ---- */
+  .tabs{
+    display:flex;gap:6px;margin:28px 0 22px;
+    border-bottom:1px solid var(--line);
+  }
+  .tab{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    background:none;border:none;
+    padding:11px 4px;
+    margin-right:22px;
+    cursor:pointer;
+    position:relative;
+    transition:color .15s;
+  }
+  .tab:hover{color:var(--text-mid);}
+  .tab.active{color:var(--text);}
+  .tab.active::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
+    background:var(--amber);
+  }
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---- Calendar view layout ---- */
+  .cal-layout{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width:760px){
+    .cal-layout{grid-template-columns:1fr;}
+  }
+
+  .week-list{
+    max-height:640px;
+    overflow-y:auto;
+    padding-right:6px;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .week-list::-webkit-scrollbar{width:6px;}
+  .week-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+  .week-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 12px 14px;
+  }
+  .week-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin-bottom:9px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .perf{
+    display:flex;gap:3px;
+  }
+  .perf i{width:3px;height:3px;border-radius:50%;background:var(--line);display:block;}
+
+  .date-row{display:flex;gap:8px;}
+  .date-chip{
+    flex:1;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 6px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .date-chip:hover{border-color:var(--teal);background:var(--card-hover);}
+  .date-chip.active{
+    background:linear-gradient(160deg,var(--amber-dim),var(--card));
+    border-color:var(--amber);
+  }
+  .date-chip .dow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;
+  }
+  .date-chip.active .dow{color:var(--amber);}
+  .date-chip .num{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:26px;line-height:1.1;color:var(--text);
+  }
+  .date-chip .mon{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;color:var(--text-dim);text-transform:uppercase;
+  }
+
+  /* ---- Detail panel ---- */
+  .detail{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:26px;
+    min-height:420px;
+  }
+  .detail-empty{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    height:420px;color:var(--text-dim);text-align:center;gap:10px;
+  }
+  .detail-empty .big{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text-mid);}
+
+  .detail-head{
+    display:flex;align-items:baseline;justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;gap:8px;
+  }
+  .detail-head .date-big{
+    font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--text);
+  }
+  .detail-head .date-big span{color:var(--amber);}
+  .detail-head .tag{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+    color:var(--teal);text-transform:uppercase;
+    border:1px solid var(--teal-dim);background:var(--teal-dim);
+    padding:5px 10px;border-radius:20px;
+  }
+
+  .group-title{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--text-dim);margin:22px 0 12px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .group-title:first-of-type{margin-top:0;}
+  .group-title i{width:8px;height:8px;border-radius:2px;display:inline-block;}
+  .group-title.us i{background:var(--amber);}
+  .group-title.av i{background:var(--teal);}
+
+  .role-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:10px;
+  }
+  .role-card{
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    border-left:3px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .role-card.us{border-left-color:var(--amber);}
+  .role-card.av{border-left-color:var(--teal);}
+  .role-card .role{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.04em;
+    color:var(--text-dim);text-transform:uppercase;margin-bottom:4px;
+  }
+  .role-card .name{font-size:14.5px;font-weight:600;color:var(--text);}
+  .role-card .name.hl{color:var(--amber);}
+
+  /* ---- Search view ---- */
+  .search-box{
+    display:flex;align-items:center;gap:10px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 16px;margin-bottom:20px;
+  }
+  .search-box svg{flex-shrink:0;color:var(--text-dim);}
+  .search-box input{
+    flex:1;background:none;border:none;outline:none;
+    color:var(--text);font-family:'Inter',sans-serif;font-size:15px;
+  }
+  .search-box input::placeholder{color:var(--text-dim);}
+  #personList datalist{}
+
+  .result-count{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--text-dim);
+    margin-bottom:14px;letter-spacing:.03em;
+  }
+  .result-count b{color:var(--amber);}
+
+  .result-list{display:flex;flex-direction:column;gap:10px;}
+  .result-item{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  }
+  .result-item .rd{
+    font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--amber);
+    min-width:110px;
+  }
+  .result-item .rr{
+    font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;
+    letter-spacing:.05em;color:var(--teal);
+    border:1px solid var(--teal-dim);background:var(--teal-dim);
+    padding:4px 10px;border-radius:20px;
+  }
+  .no-results{color:var(--text-dim);padding:30px 0;text-align:center;font-size:14px;}
+
+  footer{
+    margin-top:50px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--text-dim);font-size:12.5px;font-family:'JetBrains Mono',monospace;
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Julio – Septiembre 2026</div>
+    <h1>Equipo de <span>Servicio</span></h1>
+    <p class="sub">Acomodadores, sonido, video y plataforma. Elegí una semana en el calendario o buscá un nombre para ver dónde le toca servir.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-view="cal">Calendario</button>
+    <button class="tab" data-view="search">Buscar por nombre</button>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div class="view active" id="view-cal">
+    <div class="cal-layout">
+      <div class="week-list" id="weekList"></div>
+      <div class="detail" id="detail">
+        <div class="detail-empty">
+          <div class="big">Elegí una fecha</div>
+          <div>Tocá cualquier día de la lista para ver las asignaciones completas.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH VIEW -->
+  <div class="view" id="view-search">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Escribí un nombre, por ejemplo: Alex Amarilla" list="personList" autocomplete="off">
+      <datalist id="personList"></datalist>
+    </div>
+    <div class="result-count" id="resultCount"></div>
+    <div class="result-list" id="resultList"></div>
+  </div>
+
+  <footer>
+    <span>19 fechas registradas</span>
+    <span>Datos: Acomodadores Julio y Agosto 2026</span>
+  </footer>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+// role order: responsable, portonChico, estacionamiento, salon, video, audio, mic1, mic2, videoconf, plataforma
+const ROLE_LABELS = {
+  responsable:"Acomodador responsable",
+  portonChico:"Portón chico",
+  estacionamiento:"Estacionamiento",
+  salon:"Salón",
+  video:"Video",
+  audio:"Audio",
+  mic1:"Microfonista 1",
+  mic2:"Microfonista 2",
+  videoconf:"Videoconferencia",
+  plataforma:"Plataforma"
+};
+const USHER_ROLES = ["responsable","portonChico","estacionamiento","salon"];
+const AV_ROLES = ["video","audio","mic1","mic2","videoconf","plataforma"];
+
+const raw = [
+["2026-07-04",["Alejandro Recalde","Santiago Medina","Cristian Cantero","Gustavo Casco","Gustavo Barreto","Maxi Amarilla","Alex Amarilla","Rafael Rotela","Yosuke Watanabe","Dylan"]],
+["2026-07-08",["Ramón Maciel","Diego González","Gustavo Casco","Alejandro Recalde","Gustavo Barreto","Alex Amarilla","Dylan","Maxi Amarilla","Cristian Cantero","Rafael Rotela"]],
+["2026-07-11",["Alejandro Recalde","Rubén González","Teodoro Bernal","Yosuke Watanabe","Maxi Amarilla","Cristian Medina","Arturo Ruiz Diaz","Gustavo Barreto","Cristian Cantero","Abrahán Alvarenga"]],
+["2026-07-15",["Javier Rodriguez","Lázaro Medina","Abel Amarilla","Walter Ortiz","Alex Amarilla","Javier Rodríguez","Benancio","Arturo Ruiz Diaz","Ramón Maciel","Cristian Medina"]],
+["2026-07-18",["Javier Rodriguez","Cándido Espínola","Rubén González","Cristian Cantero","Cristian Medina","Javier Rodríguez","Maxi Amarilla","Teófilo Gómez","Santiago Medina","Dylan"]],
+["2026-07-22",["Teófilo Gómez","Walter Ortiz","Alejandro Recalde","Javier Rodriguez","Fernando Rodríguez","Alex Amarilla","Maxi Amarilla","Rafael Rotela","Gustavo Barreto","Dylan"]],
+["2026-07-25",["Yosuke Watanabe","Rodolfo Insaurralde","Alejandro Recalde","Diego González","Alex Amarilla","Abrahán Alvarenga","Cristian Medina","Javier Rodríguez","Fernando Rodríguez","Rafael Rotela"]],
+["2026-07-29",["Rubén González","Lázaro Medina","Yosuke Watanabe","Santiago Medina","Abrahán Alvarenga","Javier Rodríguez","Gustavo Barreto","Luis Romero","Maxi Amarilla","Cristian Medina"]],
+["2026-08-01",["Gustavo Casco","Gustavo Barreto","Santiago Medina","Fernando Rodriguez","Alex Amarilla","Javier Rodríguez","Arturo Ruiz Diaz","Alejandro Recalde","Ramón Maciel","Maxi Amarilla"]],
+["2026-08-05",["Teófilo Gómez","Rodolfo Insaurralde","Abel Amarilla","Gustavo Casco","Cristian Medina","Abrahán Alvarenga","Javier Rodríguez","Benancio","Diego González","Alex Amarilla"]],
+["2026-08-08",["Santiago Medina","Lázaro Medina","Fernando Rodriguez","Rodolfo Insaurralde","Maxi Amarilla","Fernando Rodríguez","Abrahán Alvarenga","Gustavo Barreto","Javier Rodríguez","Benancio"]],
+["2026-08-12",["Teodoro Bernal","Walter Ortiz","Theodoros Akimaru","Abel Amarilla","Abrahán Alvarenga","Maxi Amarilla","Gustavo Barreto","Cristian Medina","Alejandro Recalde","Dylan"]],
+["2026-08-15",["Rodolfo Insaurralde","Theodoros Akimaru","Diego González","Alejandro Recalde","Alex Amarilla","Fernando Rodríguez","Cristian Medina","Teófilo Gómez","Javier Rodríguez","Lázaro Medina"]],
+["2026-08-19",["Abel Amarilla","Teófilo Gómez","Cristian Cantero","Rubén González","Arturo Ruiz Diaz","Javier Rodríguez","Fernando Rodríguez","Abrahán Alvarenga","Walter Ortiz","Rafael Rotela"]],
+["2026-08-22",["Teófilo Gómez","Yosuke Watanabe","Javier Rodriguez","Rubén González","Cristian Medina","Fernando Rodríguez","Arturo Ruiz Diaz","Ramón Maciel","Cándido Espínola","Javier Rodríguez"]],
+["2026-08-26",["Cristian Cantero","Theodoros Akimaru","Fernando Rodriguez","Walter Ortiz","Abrahán Alvarenga","Alex Amarilla","Javier Rodríguez","Benancio","Diego González","Maxi Amarilla"]],
+["2026-08-29",["Teodoro Bernal","Teófilo Gómez","Cándido Espínola","Walter Ortiz","Arturo Ruiz Diaz","Maxi Amarilla","Gustavo Barreto","Dylan","Javier Rodríguez","Lázaro Medina"]],
+["2026-09-02",["Lázaro Medina","Teófilo Gómez","Javier Rodriguez","Rubén González","Cristian Medina","Javier Rodríguez","Dylan","Alejandro Recalde","Walter Ortiz","Rafael Rotela"]],
+["2026-09-05",["Teófilo Gómez","Abel Amarilla","Gustavo Barreto","Santiago Medina","Fernando Rodríguez","Abrahán Alvarenga","Arturo Ruiz Diaz","Benancio","Alejandro Recalde","Alex Amarilla"]]
+];
+
+const ROLE_KEYS = Object.keys(ROLE_LABELS);
+const schedule = raw.map(([date, names])=>{
+  const roles = {};
+  ROLE_KEYS.forEach((k,i)=>roles[k]=names[i]);
+  return {date, roles};
+});
+
+/* ---------------- DATE HELPERS ---------------- */
+const DOW = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const MON = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+const MON_LONG = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+function parseDate(s){
+  const [y,m,d] = s.split("-").map(Number);
+  return new Date(y, m-1, d);
+}
+function fmtChip(s){
+  const d = parseDate(s);
+  return {dow:DOW[d.getDay()], num:d.getDate(), mon:MON[d.getMonth()]};
+}
+function fmtLong(s){
+  const d = parseDate(s);
+  return `${DOW[d.getDay()]} ${d.getDate()} de ${MON_LONG[d.getMonth()]}`;
+}
+function mondayOf(d){
+  const day = d.getDay();
+  const diff = (day===0? -6 : 1) - day;
+  const m = new Date(d);
+  m.setDate(d.getDate()+diff);
+  return m;
+}
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+
+/* group into Mon-Sun weeks */
+const weeks = [];
+schedule.forEach(entry=>{
+  const d = parseDate(entry.date);
+  const mon = mondayOf(d);
+  const key = mon.toISOString().slice(0,10);
+  let wk = weeks.find(w=>w.key===key);
+  if(!wk){ wk = {key, mon, dates:[]}; weeks.push(wk); }
+  wk.dates.push(entry.date);
+});
+weeks.sort((a,b)=>a.mon-b.mon);
+
+/* ---------------- RENDER: WEEK LIST ---------------- */
+const weekListEl = document.getElementById("weekList");
+let activeDate = null;
+
+function renderWeekList(){
+  weekListEl.innerHTML = "";
+  weeks.forEach(wk=>{
+    const sun = addDays(wk.mon,6);
+    const card = document.createElement("div");
+    card.className = "week-card";
+
+    const label = document.createElement("div");
+    label.className = "week-label";
+    label.innerHTML = `<span class="perf"><i></i><i></i><i></i></span> Semana del ${wk.mon.getDate()} al ${sun.getDate()} de ${MON_LONG[sun.getMonth()]}`;
+    card.appendChild(label);
+
+    const row = document.createElement("div");
+    row.className = "date-row";
+    wk.dates.forEach(dateStr=>{
+      const c = fmtChip(dateStr);
+      const chip = document.createElement("div");
+      chip.className = "date-chip";
+      chip.dataset.date = dateStr;
+      chip.innerHTML = `<div class="dow">${c.dow}</div><div class="num">${c.num}</div><div class="mon">${c.mon}</div>`;
+      chip.addEventListener("click", ()=>selectDate(dateStr));
+      row.appendChild(chip);
+    });
+    card.appendChild(row);
+    weekListEl.appendChild(card);
+  });
+}
+
+function selectDate(dateStr){
+  activeDate = dateStr;
+  document.querySelectorAll(".date-chip").forEach(c=>{
+    c.classList.toggle("active", c.dataset.date===dateStr);
+  });
+  renderDetail(dateStr);
+}
+
+function roleCard(entry, key, highlightName){
+  const team = USHER_ROLES.includes(key) ? "us" : "av";
+  const name = entry.roles[key] || "—";
+  const hl = highlightName && name===highlightName ? " hl" : "";
+  return `<div class="role-card ${team}">
+    <div class="role">${ROLE_LABELS[key]}</div>
+    <div class="name${hl}">${name}</div>
+  </div>`;
+}
+
+function renderDetail(dateStr, highlightName){
+  const entry = schedule.find(e=>e.date===dateStr);
+  const detail = document.getElementById("detail");
+  if(!entry){ return; }
+  detail.innerHTML = `
+    <div class="detail-head">
+      <div class="date-big">${fmtLong(dateStr).split(" ")[0]} <span>${fmtLong(dateStr).split(" ").slice(1).join(" ")}</span></div>
+      <div class="tag">${weeks.find(w=>w.dates.includes(dateStr)).dates.length>1?'Servicio de la semana':'Servicio'}</div>
+    </div>
+    <div class="group-title us"><i></i>Acomodadores</div>
+    <div class="role-grid">
+      ${USHER_ROLES.map(k=>roleCard(entry,k,highlightName)).join("")}
+    </div>
+    <div class="group-title av"><i></i>Audio y video</div>
+    <div class="role-grid">
+      ${AV_ROLES.map(k=>roleCard(entry,k,highlightName)).join("")}
+    </div>
+  `;
+}
+
+/* ---------------- SEARCH VIEW ---------------- */
+const allNames = Array.from(new Set(schedule.flatMap(e=>Object.values(e.roles)))).filter(n=>n && n!=="—").sort((a,b)=>a.localeCompare(b,'es'));
+const personList = document.getElementById("personList");
+allNames.forEach(n=>{
+  const opt = document.createElement("option");
+  opt.value = n;
+  personList.appendChild(opt);
+});
+
+function normalize(s){
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+
+function renderSearch(query){
+  const resultList = document.getElementById("resultList");
+  const resultCount = document.getElementById("resultCount");
+  const q = normalize(query.trim());
+  if(!q){
+    resultList.innerHTML = "";
+    resultCount.textContent = `${allNames.length} personas en el equipo`;
+    return;
+  }
+  const matches = [];
+  schedule.forEach(entry=>{
+    ROLE_KEYS.forEach(k=>{
+      const name = entry.roles[k];
+      if(name && normalize(name).includes(q)){
+        matches.push({date:entry.date, role:ROLE_LABELS[k], name});
+      }
+    });
+  });
+  matches.sort((a,b)=>a.date.localeCompare(b.date));
+  resultCount.innerHTML = matches.length
+    ? `<b>${matches.length}</b> asignación(es) encontrada(s)`
+    : `Sin coincidencias`;
+  resultList.innerHTML = matches.length
+    ? matches.map(m=>`
+        <div class="result-item">
+          <div class="rd">${fmtLong(m.date)}</div>
+          <div class="rr">${m.role}</div>
+          <div style="color:var(--text-mid);font-size:14px;">${m.name}</div>
+        </div>`).join("")
+    : `<div class="no-results">No encontramos a nadie con ese nombre. Probá con otra palabra.</div>`;
+}
+
+document.getElementById("searchInput").addEventListener("input", e=>renderSearch(e.target.value));
+
+/* ---------------- TABS ---------------- */
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById(tab.dataset.view==="cal"?"view-cal":"view-search").classList.add("active");
+  });
+});
+
+/* ---------------- INIT ---------------- */
+renderWeekList();
+renderSearch("");
+selectDate(schedule[0].date);
+</script>
+</body>
+</html>
