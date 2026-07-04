@@ -104,6 +104,24 @@
   }
   @media (max-width:760px){
     .cal-layout{grid-template-columns:1fr;}
+    .cal-layout.showing-detail .week-list{display:none;}
+    .cal-layout:not(.showing-detail) .detail{display:none;}
+  }
+
+  .back-btn{
+    display:none;
+    align-items:center;gap:8px;
+    background:none;border:1px solid var(--line);
+    color:var(--text-mid);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.05em;text-transform:uppercase;
+    padding:9px 14px;border-radius:8px;
+    cursor:pointer;margin-bottom:18px;
+    transition:all .15s;
+  }
+  .back-btn:hover{border-color:var(--teal);color:var(--text);}
+  @media (max-width:760px){
+    .showing-detail .back-btn{display:inline-flex;}
   }
 
   .week-list{
@@ -290,7 +308,7 @@
 
   <!-- CALENDAR VIEW -->
   <div class="view active" id="view-cal">
-    <div class="cal-layout">
+    <div class="cal-layout" id="calLayout">
       <div class="week-list" id="weekList"></div>
       <div class="detail" id="detail">
         <div class="detail-empty">
@@ -427,7 +445,7 @@ function renderWeekList(){
       chip.className = "date-chip";
       chip.dataset.date = dateStr;
       chip.innerHTML = `<div class="dow">${c.dow}</div><div class="num">${c.num}</div><div class="mon">${c.mon}</div>`;
-      chip.addEventListener("click", ()=>selectDate(dateStr));
+      chip.addEventListener("click", ()=>selectDate(dateStr, true));
       row.appendChild(chip);
     });
     card.appendChild(row);
@@ -435,12 +453,19 @@ function renderWeekList(){
   });
 }
 
-function selectDate(dateStr){
+function selectDate(dateStr, fromClick){
   activeDate = dateStr;
   document.querySelectorAll(".date-chip").forEach(c=>{
     c.classList.toggle("active", c.dataset.date===dateStr);
   });
   renderDetail(dateStr);
+  if(fromClick){
+    document.getElementById("calLayout").classList.add("showing-detail");
+  }
+}
+
+function backToCalendar(){
+  document.getElementById("calLayout").classList.remove("showing-detail");
 }
 
 function roleCard(entry, key, highlightName){
@@ -458,6 +483,7 @@ function renderDetail(dateStr, highlightName){
   const detail = document.getElementById("detail");
   if(!entry){ return; }
   detail.innerHTML = `
+    <button class="back-btn" id="backBtn">&larr; Volver al calendario</button>
     <div class="detail-head">
       <div class="date-big">${fmtLong(dateStr).split(" ")[0]} <span>${fmtLong(dateStr).split(" ").slice(1).join(" ")}</span></div>
       <div class="tag">${weeks.find(w=>w.dates.includes(dateStr)).dates.length>1?'Servicio de la semana':'Servicio'}</div>
@@ -471,6 +497,8 @@ function renderDetail(dateStr, highlightName){
       ${AV_ROLES.map(k=>roleCard(entry,k,highlightName)).join("")}
     </div>
   `;
+  const backBtn = document.getElementById("backBtn");
+  if(backBtn) backBtn.addEventListener("click", backToCalendar);
 }
 
 /* ---------------- SEARCH VIEW ---------------- */
@@ -533,7 +561,7 @@ document.querySelectorAll(".tab").forEach(tab=>{
 /* ---------------- INIT ---------------- */
 renderWeekList();
 renderSearch("");
-selectDate(schedule[0].date);
+selectDate(schedule[0].date, false);
 </script>
 </body>
 </html>
